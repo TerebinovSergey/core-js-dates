@@ -242,8 +242,18 @@ function getNextFridayThe13th(/* date */) {
  * Date(2024, 5, 1) => 2
  * Date(2024, 10, 10) => 4
  */
-function getQuarter(/* date */) {
-  throw new Error('Not implemented');
+function getQuarter(date) {
+  const month = date.getUTCMonth();
+  if (month < 3) {
+    return 1;
+  }
+  if (month < 6) {
+    return 2;
+  }
+  if (month < 9) {
+    return 3;
+  }
+  return 4;
 }
 
 /**
@@ -264,8 +274,39 @@ function getQuarter(/* date */) {
  * { start: '01-01-2024', end: '15-01-2024' }, 1, 3 => ['01-01-2024', '05-01-2024', '09-01-2024', '13-01-2024']
  * { start: '01-01-2024', end: '10-01-2024' }, 1, 1 => ['01-01-2024', '03-01-2024', '05-01-2024', '07-01-2024', '09-01-2024']
  */
-function getWorkSchedule(/* period, countWorkDays, countOffDays */) {
-  throw new Error('Not implemented');
+function formatDateTo(date) {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}-${month}-${year}`;
+}
+
+function getDateTo(str) {
+  const day = Number(str.slice(0, 2));
+  const month = Number(str.slice(3, 5));
+  const year = Number(str.slice(6, 10));
+  return new Date(year, month - 1, day);
+}
+
+function getWorkSchedule(period, countWorkDays, countOffDays) {
+  let start = getDateTo(period.start);
+  let end = getDateTo(period.end);
+  start = new Date(start - start.getTimezoneOffset() * 60000);
+  end = new Date(end - end.getTimezoneOffset() * 60000);
+
+  const workShedule = [];
+  while (start <= end) {
+    for (let i = 0; i < countWorkDays; i += 1) {
+      workShedule.push(formatDateTo(start));
+
+      start.setDate(start.getDate() + 1);
+      if (start > end) return workShedule;
+    }
+    for (let i = 0; i < countOffDays; i += 1) {
+      start.setDate(start.getDate() + 1);
+    }
+  }
+  return workShedule;
 }
 
 /**
